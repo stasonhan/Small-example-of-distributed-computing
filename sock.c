@@ -60,7 +60,7 @@ int set_local_ip(struct sockaddr_in* addr,int sock_fd)
         perror("ioctl");
         return  -1;
     }
-    int num = num = conf.ifc_len / sizeof(struct ifreq); 
+    int num = conf.ifc_len / sizeof(struct ifreq); 
     ifr = conf.ifc_req;
     for(i = 0; i < num; i++)
     {
