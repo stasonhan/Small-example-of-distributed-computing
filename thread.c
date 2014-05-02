@@ -13,6 +13,10 @@ void create_listen_thread()
     pthread_create(&tid1,NULL,listen_thread,NULL);
 
 }
+void create_worker_thread()
+{
+    ;
+}
 //
 void add_epollin_ctl(int epfd,int sockfd)
 {
