@@ -14,6 +14,7 @@ typedef struct cmd_s cmd_t;
 struct cmd_s
 {
     char name[30];
+    char bank[128];
     int id;
     char account[128];
     double money;
