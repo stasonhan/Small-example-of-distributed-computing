@@ -1,14 +1,14 @@
 
 #include "command.h"
-
+#include "cJSON.h"
 task_queue_t task;
 /*
 *function: parse the quest from the server into cmd_s
 @para:
 * quest:
-* name@acout@cut/add@money
+*"{name:"123456",bank:"china",operate:"cut/add",money:234}"
 */
-int parse_request(char* quest)
+/*int parse_request(char* quest)
 {
     if(quest != NULL)
         printf("quest:%s\n",quest);
@@ -39,8 +39,61 @@ int parse_request(char* quest)
     new_task->command.money = atoi(pos + 1);
     printf("command.money = %f\n",new_task->command.money);
     return 0;
+}*/
+cJSON* create_msg_obj(const char* text)
+{
+    cJSON *obj = cJSON_Parse(text);
+    char* out;
+    if(!obj)
+    {
+        printf("create cJSON failed!\n");
+    }
+    else
+    {
+        return obj;
+        //out=cJSON_Print(obj);
+        //cJSON_Delete(obj);
+        //printf("%s\n",out);
+        //free(out); 
+
+    }
 }
 
+
+int parse_request(char* quest)
+{
+    printf("quest = %s\n",quest);
+    //create_msg_obj(quest);
+    char *items[] ={"name","bank","operate","money"};
+    cJSON *json = cJSON_Parse(quest);
+    cJSON *item;
+    task_t *cmd;
+    char *string;
+    cmd = (task_t *)malloc(sizeof(task_t));
+    if(!cmd)
+    {
+        perror("malloc task_t");
+    }
+    int i;
+    for(i = 0;i<sizeof(items)/sizeof(char*);i++)
+    {
+
+        item = cJSON_GetObjectItem(json,items[i]);
+        string = cJSON_Print(item);
+        if(!strcmp(items[i],"money"))
+        {
+            int money = atoi(string);
+            cmd->money = money;
+        }
+        else
+        {
+            strncpy(cmd->name,string,strlen(string) + 1);
+        }
+        cJSON_Delete(item);
+        free(string);
+    }
+
+}
 task_queue_t* init_task(task_queue_t* t)
 {
     t->head = t->tail = NULL;
