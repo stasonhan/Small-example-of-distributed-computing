@@ -7,15 +7,18 @@
 int g_poll;
 struct epoll_event ev,events[20];
 
+//extern task_queue_t task;
+
 void create_listen_thread()
 {
-    pthread_t tid1,tid2;
+    pthread_t tid1;
     pthread_create(&tid1,NULL,listen_thread,NULL);
 
 }
 void create_worker_thread()
 {
-    ;
+    pthread_t tid2;
+    pthread_create(&tid2,NULL,worker_thread,NULL);
 }
 //
 void add_epollin_ctl(int epfd,int sockfd)
@@ -43,7 +46,12 @@ void del_epoll_ctl(int epfd,int sockfd)
     epoll_ctl(epfd,EPOLL_CTL_DEL,sockfd,&ev);
 
 }
+void *worker_thread(void* args)
+{
+    char *p;
+    construct_command_to_sql(p); 
 
+}
 void *listen_thread(void* args)
 {
     int connfd = -1,sockfd;
