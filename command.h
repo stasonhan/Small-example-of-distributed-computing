@@ -48,6 +48,6 @@ task_queue_t* init_task(task_queue_t* t);
 
 int insert_queue(task_queue_t* h,task_t *q);
 task_t* get_queue(task_queue_t* t);
-
+void destroy_task(task_queue_t* t);
 
 #endif

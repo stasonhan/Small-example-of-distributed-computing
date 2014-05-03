@@ -179,3 +179,13 @@ task_t* get_queue(task_queue_t* t)
     return ptr;
 
 }
+void destroy_task(task_queue_t* t)
+{
+    if (t == NULL)
+        return;
+    task_t *ptr;
+    for (ptr = t->head;ptr != NULL&& ptr != t->tail;ptr = ptr->next)
+    {
+        free(ptr);
+    }
+}
