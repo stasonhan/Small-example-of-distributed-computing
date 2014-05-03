@@ -6,9 +6,11 @@
 #include <string.h>
 #include "db_interface.h"
 
+#ifndef OUT
+#define OUT
+#endif
 
 enum operate{ADD,CUT};
-char *op[] = {"",""};
 
 typedef struct cmd_s cmd_t;
 struct cmd_s
@@ -18,7 +20,7 @@ struct cmd_s
     int id;
     char account[128];
     double money;
-    enum operate op;   
+    char operate[128];   
     char msg[128];
 };
 
@@ -40,6 +42,7 @@ struct task_queue_s
 }; 
 
 int parse_request(char* quest);
+void  construct_command_to_sql(OUT char* sql);
 /*初始化队列头*/
 task_queue_t* init_task(task_queue_t* t);
 
