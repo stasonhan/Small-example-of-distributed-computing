@@ -8,6 +8,8 @@ extern task_queue_t task;
 * quest:
 *"{name:"123456",bank:"china",operate:"cut/add",money:234}"
 */
+
+
 cJSON* create_msg_obj(const char* text)
 {
     cJSON *obj = cJSON_Parse(text);
@@ -49,9 +51,6 @@ int parse_request(char* quest)
     string = cJSON_Print(json);
     printf("string=%s\n",string);
 
-
-
-
     item = cJSON_GetObjectItem(json,"name");
     string = cJSON_Print(item);
     strncpy(t->command.name,string,strlen(string) + 1);
@@ -83,6 +82,19 @@ int parse_request(char* quest)
     insert_queue(&task,t);
 
 }
+
+void  construct_command_to_sql(OUT char* sql)
+{
+    task_t *ptr=NULL;
+    printf("construct_command_to_sql\n");
+    while(1)
+    {
+        ptr = get_queue(&task);
+        if(ptr == NULL)
+            continue;
+        printf("ptr->command.bank:%s\n",ptr->command.bank);
+    }
+}
 task_queue_t* init_task(task_queue_t* t)
 {
     t->head = t->tail = NULL;
@@ -105,7 +117,7 @@ int insert_queue(task_queue_t* t,task_t* q)
         return -1;
         pthread_mutex_unlock(&t->mutex);
     }
-    if(t->tail == NULL)
+    if(/*t->tail == NULL || */t->head == NULL)
     {
         q->next = NULL;
         t->tail = q;
@@ -117,9 +129,10 @@ int insert_queue(task_queue_t* t,task_t* q)
         t->tail = q;
     }
     t->num++;
+    printf("In insert_queue t->num=%d\n",t->num);
     if(pthread_mutex_unlock(&t->mutex))
     {
-        perror("pthread_mutex_lock in init_queue");
+        perror("pthread_mutex_lock in insert_queue");
         return -1;
     }
     if(pthread_cond_signal(&t->cond))
@@ -131,9 +144,10 @@ int insert_queue(task_queue_t* t,task_t* q)
 }
 task_t* get_queue(task_queue_t* t)
 {
-    if(t == NULL)
+    task_t *ptr;
+    if(t == NULL )
     {    
-        perror("t null");
+        //perror("t null");
         return NULL;
     }
     if(pthread_mutex_lock(&t->mutex))
@@ -141,7 +155,7 @@ task_t* get_queue(task_queue_t* t)
         perror("pthread_mutex_lock in init_queue");
         return NULL;
     }
-    if(t->head == NULL)
+    if(t->head == NULL || t->num == 0)
     {
        if(pthread_cond_wait(&t->cond,&t->mutex))
        {
@@ -150,8 +164,12 @@ task_t* get_queue(task_queue_t* t)
            return NULL;
        }
     }
-    task_t *ptr = t->head;
+    
+    ptr = t->head;
     t->head = t->head->next;
+    t->num--;
+    printf("In get_queue t->num = %d\n",t->num);
+    
     if(pthread_mutex_unlock(&t->mutex))
     {
         perror("unlock");
